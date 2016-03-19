@@ -18,11 +18,13 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, url_for, session, flash
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
+# set the secret key.  keep this really secret:
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 #
 # The following uses the sqlite3 database test.db -- you can use this for debugging purposes
@@ -172,7 +174,9 @@ def index():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  if 'username' in session:
+      return render_template("index.html", username = session['username'])
+  return render_template("login.html")
 
 #
 # This is an example of a different path.  You can see it at
@@ -182,9 +186,14 @@ def index():
 # notice that the functio name is another() rather than index()
 # the functions for each app.route needs to have different names
 #
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
+@app.route('/signout')
+def signout():
+  if 'username' in session:
+    pass
+    session.pop('username', None)
+    #flash('You were logged out')
+
+  return redirect('/')   
 
 
 # Example of adding new data to the database
@@ -195,15 +204,25 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
+
+
+@app.route('/login', methods=['GET','POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+    if request.method == 'POST':
+      username = request.form['username']
+      password = request.form['password']
+      if username == password:
+        session['username'] = username
+        return redirect("/")
+  
+      return render_template("login.html")
+    else:   
+      return redirect("/")
+
 
 
 if __name__ == "__main__":
   import click
-
   @click.command()
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
