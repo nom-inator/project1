@@ -1,0 +1,13 @@
+pages needed:
+	1. sign up -> index
+	2. sign in -> index
+	3. index 
+		(show user info)
+		-> query_for_restaurant  
+		-> fav_list
+	4. query -> query_result
+	5. query_result	-> restaurants
+	6. restaurants 
+		(show recommended visit time)
+		(actions: add to or remove from fav_list)
+	7. fav_list -> restaurants
