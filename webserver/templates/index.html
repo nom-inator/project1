@@ -8,8 +8,13 @@
 
 
 <body>
-  <h1>Some famous Computer Scientists</h1>
-  <div>{{data}}</div>
+  <h1>Nom-inator</h1>
+ 
+  <div>
+    <tr><td> uid: {{ users['id'] }}</td><br>
+    <td>Name: {{ users['name']}}</td></tr>
+
+  </div>
 
   <div>
     {% for n in data %}
@@ -17,14 +22,12 @@
     {% endfor %}
   </div>
 
-  <div> Hi, {{username}} </div>
+  
   
 
 <p><a href="/signout">sign out</a></p>
 
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
+
 
 </body>
 

@@ -74,6 +74,12 @@ engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'
 #
 
 
+engine.execute("""CREATE TABLE IF NOT EXISTS users (
+  id serial,
+  pass text,
+  name text
+);""")
+
 
 @app.before_request
 def before_request():
@@ -170,22 +176,28 @@ def index():
   context = dict(data = names)
 
 
+  
+
+  #context['users'] = users
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
   if 'username' in session:
-      return render_template("index.html", username = session['username'])
+      username = session['username']
+      cursor = g.conn.execute("SELECT * FROM users WHERE id = '%s';" % (username))
+      users = cursor.fetchone()
+      #for result in cursor:
+      #  users.append(result)  
+      cursor.close()
+      return render_template("index.html", username = username, users = users)
   return render_template("login.html")
 
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
+
+
+
+
+
 @app.route('/signout')
 def signout():
   if 'username' in session:
@@ -194,6 +206,22 @@ def signout():
     #flash('You were logged out')
 
   return redirect('/')   
+
+@app.route('/signup')
+def signup():
+  return render_template("signup.html")
+
+
+@app.route('/add_new_user', methods=['POST'])
+def add_new_user():
+  username = request.form['username']
+  password = request.form['password']
+  name = request.form['name']
+
+  engine.execute("""INSERT INTO users (id, pass, name) VALUES ('%s', '%s', '%s');""" % (username, password, name))
+
+  session['username'] = username
+  return redirect('/') 
 
 
 # Example of adding new data to the database
@@ -244,6 +272,7 @@ if __name__ == "__main__":
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    
 
 
   run()
