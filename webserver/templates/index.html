@@ -11,18 +11,22 @@
   <h1>Nom-inator</h1>
  
   <div>
-    <tr><td> uid: {{ users['id'] }}</td><br>
-    <td>Name: {{ users['name']}}</td></tr>
-
+     <tr><td> uid: {{ users['uid'] }}</td><br>
+    <td>Name: {{ users['name']}}</td><br>
+    <td>localtion id: {{ users['lid']}}</td><br>
+    <td>list id: {{ listid}}</td>
+  </tr> 
+    
   </div>
 
+  <div> <br>Favourites Restaurants: </div>
   <div>
-    {% for n in data %}
+    {% for n in favs %}
     <div>{{n}}</div>
     {% endfor %}
   </div>
 
-  
+
   
 
 <p><a href="/signout">sign out</a></p>

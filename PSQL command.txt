@@ -1,0 +1,108 @@
+# how to run psql locally:
+  initdb [project_root]/data
+  postgres -D [project_root]/data/
+  createdb nominator
+  psql -h localhost nominator
+
+# db backup:
+  To dump a database called mydb into a SQL-script file:
+    $ pg_dump -U cw2952 -h w4111db.eastus.cloudapp.azure.com > backup.sql
+  To reload such a script into a (freshly created) database named newdb:
+    $ psql -d nominator -f backup.sql
+
+CREATE TABLE Users(
+  uid text,
+  name text,
+  lid text,
+  PRIMARY KEY (uid)
+);
+\COPY Users from 'Users.csv' WITH (FORMAT CSV);
+ALTER TABLE Users ADD CONSTRAINT lfk FOREIGN KEY (lid) REFERENCES User_Location (lid) MATCH FULL;
+
+CREATE TABLE User_Location(
+  lid text,
+  uid text,
+  lat numeric,
+  lng numeric,
+  PRIMARY KEY(lid),
+  FOREIGN KEY (uid) REFERENCES Users
+    ON DELETE CASCADE
+);
+\COPY User_Location from 'User_Location.csv' WITH (FORMAT CSV);
+
+
+CREATE TABLE FavouritesList(
+  listid text,
+  uid text NOT NULL,
+  PRIMARY KEY (listid),
+  FOREIGN KEY (uid) REFERENCES Users
+    ON DELETE CASCADE
+);
+\COPY FavouritesList from 'Fav_List.csv' WITH (FORMAT CSV);
+
+CREATE TABLE Address(
+  aid text,
+  rid text,
+  lat numeric NOT NULL,
+  lng numeric NOT NULL,
+  zip int,
+  city text,
+  state text,
+  st_addr text,
+  cross_st text,
+  PRIMARY KEY (aid, rid)
+);
+\COPY Address from 'Address.csv' WITH (FORMAT CSV);
+ALTER TABLE Address ADD CONSTRAINT rfk FOREIGN KEY (rid) REFERENCES Restaurant (rid) MATCH FULL on delete cascade;
+
+
+CREATE TABLE Restaurant(
+  rid text,
+  rname text NOT NULL,
+  aid text NOT NULL, 
+  rate integer NOT NULL CHECK ( -1 < rate) CHECK (rate < 6),
+  PRIMARY KEY (rid),
+  FOREIGN KEY (aid, rid) REFERENCES Address
+    ON DELETE NO ACTION
+);
+\COPY Restaurant from 'Restaurants.csv' WITH (FORMAT CSV);
+
+
+CREATE TABLE RestaurantOfList(
+  rid text,
+  listid text,
+  PRIMARY KEY(rid, listid),
+  FOREIGN KEY (rid) REFERENCES Restaurant
+    ON DELETE CASCADE,
+  FOREIGN KEY (listid) REFERENCES FavouritesList
+    ON DELETE CASCADE
+);
+\COPY RestaurantOfList from 'RestaurantOfList.csv' WITH (FORMAT CSV);
+
+
+
+CREATE TABLE Condition( -- our prebuilt table, no modifications allowed
+  cid text,
+  day_of_week integer CHECK ( 0 < day_of_week) CHECK (day_of_week < 8), -- 1~7
+  weather text CHECK (weather IN ('sunny', 'rainy', 'snowy', 'cloudy')) , -- sunny, rainy, snowy, cloudy
+  time text CHECK (time IN ('breakfast', 'lunch', 'dinner')) ,
+  PRIMARY KEY (cid)
+);
+\COPY Condition from 'Conditions.csv' WITH (FORMAT CSV);
+
+
+
+CREATE TABLE Visit(
+  rid text,
+  cid text,
+  count integer CHECK( count > -1),
+  PRIMARY KEY(rid, cid),
+  FOREIGN KEY (rid) REFERENCES Restaurant
+    ON DELETE CASCADE,
+  FOREIGN KEY (cid) REFERENCES Condition
+    ON DELETE CASCADE
+);
+\COPY Visit from 'Visits.csv' WITH (FORMAT CSV);
+
+
+

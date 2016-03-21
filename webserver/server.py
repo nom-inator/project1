@@ -39,7 +39,7 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 #
 #     DATABASEURI = "postgresql://ewu2493:foobar@w4111db.eastus.cloudapp.azure.com/ewu2493"
 #
-DATABASEURI = "sqlite:///test.db"
+DATABASEURI = "postgresql://localhost/nominator"
 
 
 #
@@ -68,7 +68,7 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   id serial,
   name text
 );""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+
 #
 # END SQLITE SETUP CODE
 #
@@ -141,12 +141,6 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
-
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
   # pass data to a template and dynamically generate HTML based on the data
@@ -173,7 +167,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  #context = dict(data = names)
 
 
   
@@ -185,12 +179,24 @@ def index():
   #
   if 'username' in session:
       username = session['username']
-      cursor = g.conn.execute("SELECT * FROM users WHERE id = '%s';" % (username))
+      cursor = g.conn.execute("SELECT * FROM Users WHERE uid = '%s';" % (username))
+      #cursor = g.conn.execute("SELECT * FROM Users ;" )      
       users = cursor.fetchone()
-      #for result in cursor:
-      #  users.append(result)  
+      if users == None:
+        return render_template("login.html")
+
+      cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid = '%s';" % (username))
+      listid = cursor.fetchone()['listid']
+
+      cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
+      favs = []
+      for result in cursor:
+        res = g.conn.execute("SELECT * FROM restaurant WHERE rid = '%s';" % (result['rid']))
+        favs.append(res.fetchone())
+        #users.append(result['rid'])  
       cursor.close()
-      return render_template("index.html", username = username, users = users)
+
+      return render_template("index.html", username = username, users = users, listid = listid, favs = favs)
   return render_template("login.html")
 
 
@@ -239,7 +245,8 @@ def login():
     if request.method == 'POST':
       username = request.form['username']
       password = request.form['password']
-      if username == password:
+      cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s';" % (username))
+      if cursor.fetchone() != None:
         session['username'] = username
         return redirect("/")
   
