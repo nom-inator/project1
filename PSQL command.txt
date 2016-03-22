@@ -26,7 +26,7 @@ CREATE TABLE User_Location(
   lng numeric,
   PRIMARY KEY(lid),
   FOREIGN KEY (uid) REFERENCES Users
-    ON DELETE CASCADE
+    ON DELETE CASCADE MATCH SIMPLE
 );
 \COPY User_Location from 'User_Location.csv' WITH (FORMAT CSV);
 

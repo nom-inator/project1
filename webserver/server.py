@@ -224,7 +224,18 @@ def add_new_user():
   password = request.form['password']
   name = request.form['name']
 
-  engine.execute("""INSERT INTO users (id, pass, name) VALUES ('%s', '%s', '%s');""" % (username, password, name))
+  cursor = g.conn.execute("SELECT COUNT(*) FROM Users;" )
+  lid = "l"+str(cursor.fetchone()[0]+1)
+  # because of foreign key constraint, insert with uid = NULL and update table after new user is added into "Users" table
+  g.conn.execute("""INSERT INTO user_location VALUES ('%s', NULL , '%s', '%s');""" % (lid, 0, 0)) 
+  g.conn.execute("""INSERT INTO Users VALUES ('%s', '%s', '%s');""" % (username, name, lid))
+  g.conn.execute("""UPDATE user_location SET uid = '%s' WHERE lid = '%s';""" % (username, lid)) 
+
+  cursor = g.conn.execute("SELECT COUNT(*) FROM favouriteslist;" )
+  listid = "list"+str(cursor.fetchone()[0]+1)
+  g.conn.execute("""INSERT INTO favouriteslist VALUES ('%s', '%s');""" % (listid, username))
+
+  cursor.close()
 
   session['username'] = username
   return redirect('/') 
