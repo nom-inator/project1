@@ -18,7 +18,7 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, url_for, session, flash
+from flask import Flask, request, render_template, g, redirect, Response, url_for, session, flash, jsonify
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -249,7 +249,13 @@ def add():
   return redirect('/')
 
 
-
+@app.route('/update_coordinate', methods=['POST'])
+def update_coordinate():
+  jlat = request.form['lat']
+  jlon = request.form['lon']
+  g.conn.execute("""UPDATE user_location SET lat = '%s', lng = '%s'  WHERE uid = '%s';""" % (jlat, jlon,session['username']))
+  return jsonify(lat = jlat, lon = jlon)
+  
 
 @app.route('/login', methods=['GET','POST'])
 def login():
