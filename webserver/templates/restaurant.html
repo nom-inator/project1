@@ -11,6 +11,7 @@
   <h1>Restaurant</h1>
 <table border="1" style="width:100%">
   <tr>
+    <td>action</td> 
     <td>rid</td>
     <td>Name</td> 
     <td>rate</td>
@@ -21,6 +22,7 @@
   </tr>
   {% for n in restaurant %}
     <tr>
+    <td><p><a href="/add_fav?rid={{n['rid']}}">add to favourites</a></p></td>  
     <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
     <td>{{n['rname']}}</td> 
     <td>{{n['rate']}}</td>
@@ -32,7 +34,7 @@
   {% endfor %}
 </table>    
 
-
+<p><a href="/">main page</a></p>
 </body>
 
 
