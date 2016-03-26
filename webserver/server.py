@@ -201,6 +201,7 @@ def index():
       cursor.close()  
 
       return render_template("index.html", username = username, users = users, listid = listid, favs = favs, restaurant=restaurant)
+
   return render_template("login.html")
 
 
@@ -282,6 +283,14 @@ def login():
       return render_template("login.html")
     else:   
       return redirect("/")
+
+@app.route('/nominate_now', methods=['POST'])
+def nominate_now():
+    wait_time = request.form['wait_time']
+    distance = request.form['distance']
+    novelty = request.form['novelty']
+
+    return render_template("nominate-now.html")
 
 if __name__ == "__main__":
   import click

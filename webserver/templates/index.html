@@ -13,18 +13,24 @@
 <body>
   <h1>nom-inator</h1>
  
+  <form method="POST" action="/nominate_now">
+
   <h2>Find me a place to eat <i>now</i>!</h2>
 
   <p>I don't want to wait <-> I want a popular restaurant:</p>
-  <input type="range"/>
+  <input type="range" name=wait_time />
 
   <p>I'm willing to go far in search of noms <-> I want something nearby:</p>
-  <input type="range"/>
+  <input type="range" name=distance />
 
   <p>I want to keep to the restaurants in my favourites <-> I want to try something new:</p>
-  <input type="range"/>
+  <input type="range" name=novelty />
 
-  <p><button>nom-inate!</button></p>
+  <p><input type="submit" value="nom-inate!"></p>
+
+  </form>
+
+  <form method="POST" action="/nominate_later">
 
   <h2>When should I visit?</h2>
 
@@ -35,8 +41,9 @@
     {% endfor %}
   </select>
 
-
   <p><button>nom-inate!</button></p>
+
+  </form>
 
   <div>
      <tr><td> uid: {{ users['uid'] }}</td><br>
