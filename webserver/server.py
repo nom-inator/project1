@@ -178,6 +178,10 @@ def index():
   # for example, the below file reads template/index.html
   #
   if 'username' in session:
+
+      cursor = g.conn.execute("SELECT * FROM Restaurant r;" )
+      restaurant = cursor.fetchall()
+
       username = session['username']
       cursor = g.conn.execute("SELECT * FROM Users WHERE uid = '%s';" % (username))
       #cursor = g.conn.execute("SELECT * FROM Users ;" )      
@@ -194,14 +198,10 @@ def index():
         res = g.conn.execute("SELECT * FROM restaurant r, Address a WHERE r.rid = '%s' AND r.aid = a.aid;" % (result['rid']))
         favs.append(res.fetchone())
         #users.append(result['rid'])  
-      cursor.close()
+      cursor.close()  
 
-      return render_template("index.html", username = username, users = users, listid = listid, favs = favs)
+      return render_template("index.html", username = username, users = users, listid = listid, favs = favs, restaurant=restaurant)
   return render_template("login.html")
-
-
-
-
 
 
 @app.route('/signout')
@@ -282,8 +282,6 @@ def login():
       return render_template("login.html")
     else:   
       return redirect("/")
-
-
 
 if __name__ == "__main__":
   import click

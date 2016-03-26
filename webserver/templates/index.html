@@ -11,12 +11,37 @@
 
 
 <body>
-  <h1>Nom-inator</h1>
+  <h1>nom-inator</h1>
  
+  <h2>Find me a place to eat <i>now</i>!</h2>
+
+  <p>I don't want to wait <-> I want a popular restaurant:</p>
+  <input type="range"/>
+
+  <p>I'm willing to go far in search of noms <-> I want something nearby:</p>
+  <input type="range"/>
+
+  <p>I want to keep to the restaurants in my favourites <-> I want to try something new:</p>
+  <input type="range"/>
+
+  <p><button>nom-inate!</button></p>
+
+  <h2>When should I visit?</h2>
+
+  Select the restaurant you want to visit:
+  <select>
+    {% for n in restaurant %}
+    <option value="haha">{{n['rname']}}</option>
+    {% endfor %}
+  </select>
+
+
+  <p><button>nom-inate!</button></p>
+
   <div>
      <tr><td> uid: {{ users['uid'] }}</td><br>
     <td>Name: {{ users['name']}}</td><br>
-    <td>localtion id: {{ users['lid']}}</td><br>
+    <td>location id: {{ users['lid']}}</td><br>
     <td>list id: {{ listid}}</td>
   </tr> 
     
