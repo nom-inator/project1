@@ -1,0 +1,39 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Restaurant</h1>
+<table border="1" style="width:100%">
+  <tr>
+    <td>rid</td>
+    <td>Name</td> 
+    <td>rate</td>
+    <td>zip</td>
+    <td>city</td>
+    <td>state</td>
+    <td>st_addr</td>
+  </tr>
+  {% for n in restaurant %}
+    <tr>
+    <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
+    <td>{{n['rname']}}</td> 
+    <td>{{n['rate']}}</td>
+    <td>{{n['zip']}}</td>
+    <td>{{n['city']}}</td>
+    <td>{{n['state']}}</td>
+    <td>{{n['st_addr']}}</td>
+    </tr>
+  {% endfor %}
+</table>    
+
+
+</body>
+
+
+</html>

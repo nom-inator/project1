@@ -191,7 +191,7 @@ def index():
       cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
       favs = []
       for result in cursor:
-        res = g.conn.execute("SELECT * FROM restaurant WHERE rid = '%s';" % (result['rid']))
+        res = g.conn.execute("SELECT * FROM restaurant r, Address a WHERE r.rid = '%s' AND r.aid = a.aid;" % (result['rid']))
         favs.append(res.fetchone())
         #users.append(result['rid'])  
       cursor.close()
@@ -216,6 +216,18 @@ def signout():
 @app.route('/signup')
 def signup():
   return render_template("signup.html")
+
+@app.route('/restaurant')
+def restaurant():
+  rid = request.args.get('rid')
+  if rid != None:
+    cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % rid)
+    #restaurant = cursor.fetchone()
+  else:  
+    cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.aid = a.aid;")
+  restaurant = cursor.fetchall()
+  cursor.close()  
+  return render_template("restaurant.html", restaurant = restaurant)  
 
 
 @app.route('/add_new_user', methods=['POST'])

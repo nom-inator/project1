@@ -21,12 +21,30 @@
   </tr> 
     
   </div>
-
   <div> <br>Favourites Restaurants: </div>
   <div>
+    <table border="1" style="width:50%">
+    <tr>
+    <td>rid</td>
+    <td>Name</td> 
+    <td>rate</td>
+    <td>zip</td>
+    <td>city</td>
+    <td>state</td>
+    <td>st_addr</td>
+    </tr>  
     {% for n in favs %}
-    <div>{{n}}</div>
+    <tr>
+    <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
+    <td>{{n['rname']}}</td> 
+    <td>{{n['rate']}}</td>
+    <td>{{n['zip']}}</td>
+    <td>{{n['city']}}</td>
+    <td>{{n['state']}}</td>
+    <td>{{n['st_addr']}}</td>
+    </tr>
     {% endfor %}
+  </table>
   </div>
 
 
@@ -34,7 +52,7 @@
 
 
 
-
+<p><a href="/restaurant">show all restaurant</a></p>
 <p><a href="/signout">sign out</a></p>
 
 coordinate from server
