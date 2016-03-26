@@ -60,7 +60,7 @@ CREATE TABLE condition (
     CONSTRAINT condition_day_of_week_check CHECK ((0 < day_of_week)),
     CONSTRAINT condition_day_of_week_check1 CHECK ((day_of_week < 8)),
     CONSTRAINT condition_time_check CHECK (("time" = ANY (ARRAY['breakfast'::text, 'lunch'::text, 'dinner'::text]))),
-    CONSTRAINT condition_weather_check CHECK ((weather = ANY (ARRAY['sunny'::text, 'rainy'::text, 'snowy'::text, 'cloudy'::text])))
+    CONSTRAINT condition_weather_check CHECK ((weather = ANY (ARRAY['clear'::text, 'rainy'::text, 'snowy'::text, 'cloudy'::text])))
 );
 
 
@@ -170,89 +170,89 @@ a10	r10	40.805892	-73.962419	10027	New York	NY	511 W. 114th Street	114th and Ams
 --
 
 COPY condition (cid, day_of_week, weather, "time") FROM stdin;
-c1	1	sunny	breakfast
+c1	1	clear	breakfast
 c2	1	rainy	breakfast
 c3	1	snowy	breakfast
 c4	1	cloudy	breakfast
-c5	1	sunny	lunch
+c5	1	clear	lunch
 c6	1	rainy	lunch
 c7	1	snowy	lunch
 c8	1	cloudy	lunch
-c9	1	sunny	dinner
+c9	1	clear	dinner
 c10	1	rainy	dinner
 c11	1	snowy	dinner
 c12	1	cloudy	dinner
-c13	2	sunny	breakfast
+c13	2	clear	breakfast
 c14	2	rainy	breakfast
 c15	2	snowy	breakfast
 c16	2	cloudy	breakfast
-c17	2	sunny	lunch
+c17	2	clear	lunch
 c18	2	rainy	lunch
 c19	2	snowy	lunch
 c20	2	cloudy	lunch
-c21	2	sunny	dinner
+c21	2	clear	dinner
 c22	2	rainy	dinner
 c23	2	snowy	dinner
 c24	2	cloudy	dinner
-c25	3	sunny	breakfast
+c25	3	clear	breakfast
 c26	3	rainy	breakfast
 c27	3	snowy	breakfast
 c28	3	cloudy	breakfast
-c29	3	sunny	lunch
+c29	3	clear	lunch
 c30	3	rainy	lunch
 c31	3	snowy	lunch
 c32	3	cloudy	lunch
-c33	3	sunny	dinner
+c33	3	clear	dinner
 c34	3	rainy	dinner
 c35	3	snowy	dinner
 c36	3	cloudy	dinner
-c37	4	sunny	breakfast
+c37	4	clear	breakfast
 c38	4	rainy	breakfast
 c39	4	snowy	breakfast
 c40	4	cloudy	breakfast
-c41	4	sunny	lunch
+c41	4	clear	lunch
 c42	4	rainy	lunch
 c43	4	snowy	lunch
 c44	4	cloudy	lunch
-c45	4	sunny	dinner
+c45	4	clear	dinner
 c46	4	rainy	dinner
 c47	4	snowy	dinner
 c48	4	cloudy	dinner
-c49	5	sunny	breakfast
+c49	5	clear	breakfast
 c50	5	rainy	breakfast
 c51	5	snowy	breakfast
 c52	5	cloudy	breakfast
-c53	5	sunny	lunch
+c53	5	clear	lunch
 c54	5	rainy	lunch
 c55	5	snowy	lunch
 c56	5	cloudy	lunch
-c57	5	sunny	dinner
+c57	5	clear	dinner
 c58	5	rainy	dinner
-c59	5	sunny	dinner
+c59	5	clear	dinner
 c60	5	rainy	dinner
 c61	6	snowy	breakfast
 c62	6	cloudy	breakfast
-c63	6	sunny	breakfast
+c63	6	clear	breakfast
 c64	6	rainy	breakfast
 c65	6	snowy	lunch
 c66	6	cloudy	lunch
-c67	6	sunny	lunch
+c67	6	clear	lunch
 c68	6	rainy	lunch
-c69	6	sunny	dinner
+c69	6	clear	dinner
 c70	6	rainy	dinner
 c71	6	snowy	dinner
 c72	6	cloudy	dinner
-c73	7	sunny	breakfast
+c73	7	clear	breakfast
 c74	7	rainy	breakfast
 c75	7	snowy	breakfast
 c76	7	cloudy	breakfast
-c77	7	sunny	lunch
+c77	7	clear	lunch
 c78	7	rainy	lunch
-c79	7	sunny	lunch
+c79	7	clear	lunch
 c80	7	rainy	lunch
 c81	7	snowy	dinner
 c82	7	cloudy	dinner
-c83	7	sunny	dinner
+c83	7	clear	dinner
 c84	7	rainy	dinner
 \.
 

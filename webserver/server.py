@@ -302,7 +302,7 @@ def nominate_now():
     distance = request.form['distance']
     novelty = request.form['novelty']
 
-    return render_template("nominate-now.html")
+    return render_template("nominate-now.html", wait_time=wait_time, distance=distance, novelty=novelty)
 
 if __name__ == "__main__":
   import click
