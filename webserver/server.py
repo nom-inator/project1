@@ -40,7 +40,7 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 #     DATABASEURI = "postgresql://ewu2493:foobar@w4111db.eastus.cloudapp.azure.com/ewu2493"
 #
 DATABASEURI = "postgresql://localhost/nominator"
-
+#DATABASEURI = "postgresql://cw2952:EZANNW@w4111db.eastus.cloudapp.azure.com/cw2952"
 
 #
 # This line creates a database engine that knows how to connect to the URI above
@@ -252,14 +252,26 @@ def add_new_user():
   session['username'] = username
   return redirect('/') 
 
+@app.route('/add_fav')
+def add_fav():
+  rid = request.args.get('rid')
+  username = session['username']
+  if rid != None and username != None:
+    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = '%s';""" % username)  
+    listid = cursor.fetchone()['listid']
+    g.conn.execute("""INSERT INTO restaurantoflist VALUES ('%s', '%s');""" % (rid, listid))
+    cursor.close()
+  return redirect('/')   
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test VALUES (NULL, ?)', name)
-  return redirect('/')
-
+@app.route('/del_fav')
+def del_fav():
+  rid = request.args.get('rid')
+  username = session['username']
+  if rid != None and username != None:
+    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = '%s';""" % username)  
+    listid = cursor.fetchone()['listid']
+    g.conn.execute("""DELETE FROM restaurantoflist WHERE rid ='%s' AND listid = '%s';""" % (rid, listid))
+  return redirect('/')   
 
 @app.route('/update_coordinate', methods=['POST'])
 def update_coordinate():

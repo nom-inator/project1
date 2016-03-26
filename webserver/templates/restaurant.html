@@ -21,6 +21,7 @@
   </tr>
   {% for n in restaurant %}
     <tr>
+    <td><p><a href="/add_fav?rid={{n['rid']}}">add to favourites</a></p></td>  
     <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
     <td>{{n['rname']}}</td> 
     <td>{{n['rate']}}</td>
@@ -32,7 +33,7 @@
   {% endfor %}
 </table>    
 
-
+<p><a href="/">main page</a></p>
 </body>
 
 

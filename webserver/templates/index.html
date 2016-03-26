@@ -35,6 +35,7 @@
     </tr>  
     {% for n in favs %}
     <tr>
+    <td><p><a href="/del_fav?rid={{n['rid']}}">delete</a></p></td>   
     <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
     <td>{{n['rname']}}</td> 
     <td>{{n['rate']}}</td>
