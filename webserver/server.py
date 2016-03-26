@@ -19,12 +19,15 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, url_for, session, flash, jsonify
+import forecastio # weather api
+from datetime import datetime
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 # set the secret key.  keep this really secret:
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+weather_api_key = '97fcdbefb9c4d2b4fbb6c6f2121ea33e'
 
 #
 # The following uses the sqlite3 database test.db -- you can use this for debugging purposes
@@ -298,9 +301,29 @@ def login():
 
 @app.route('/nominate_now', methods=['POST'])
 def nominate_now():
+    
     wait_time = request.form['wait_time']
     distance = request.form['distance']
     novelty = request.form['novelty']
+
+    # get location
+    cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = '%s';" % session['username'])
+    current_location = cursor.fetchone()
+
+    # get weather
+    # forecast = forecastio.load_forecast(weather_api_key, current_location['lat'], current_location['lng'])
+    # current_conditions = forecast.currently().icon
+
+    # get meal
+    current_hour = datetime.now().hour
+    if current_hour >= 12 and current_hour <= 17:
+      current_meal = 'lunch'
+    else if current_hour < 12 or current_hour < 3:
+      current_meal = 'breakfast'
+    else:
+      current_meal = 'dinner'
+
+
 
     return render_template("nominate-now.html", wait_time=wait_time, distance=distance, novelty=novelty)
 
