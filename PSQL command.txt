@@ -18,6 +18,7 @@ CREATE TABLE Users(
 );
 \COPY Users from 'Users.csv' WITH (FORMAT CSV);
 ALTER TABLE Users ADD CONSTRAINT lfk FOREIGN KEY (lid) REFERENCES User_Location (lid) MATCH FULL;
+ALTER TABLE users ADD COLUMN passwd character varying(50) NOT NULL DEFAULT 'pass';
 
 CREATE TABLE User_Location(
   lid text,
