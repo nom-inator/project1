@@ -14,6 +14,8 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/normalize.css') }}">
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/skeleton.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
+
 
   <link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
 
@@ -26,137 +28,191 @@
 
   <div class='container'>
 
-    
-    <img style='margin-top:20vh; margin-left: auto; margin-right: auto; display: block;' width='200px' src='{{ url_for('static',filename='assets/noun_163373_cc.png') }}' />
-    <h1 style='margin-bottom:20vh; text-align: center;'>the nom-inator</h1>
+    <div class='row'>
+      <img style='margin-top:20vh; margin-left: auto; margin-right: auto; display: block; height:25vh;' src='{{ url_for('static',filename='assets/noun_163373_cc.png') }}' />
+      <h1 style='margin-bottom:10vh; text-align: center;'>the nom-inator</h1>
+    </div>
 
+    <div style='margin-bottom:10vh' class='row'>
+      <div class="one-half column">
+        <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188703_cc.png') }}">
+        <center><button>Feed me nao</button></center>
+      </div>
+      <div class="one-half column">
+        <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188690_cc.png') }}">
+        <center><button>When should I visit?</button><center></center>
+      </div>
+    </div>
+
+    <h2>Feed me nao.</h2>
+
+    <p style='text-align: center; text-transform: uppercase; letter-spacing: 0.1em;'>What are you feeling?</p>
 
     <form method="POST" action="/nominate_now">
 
-    <h2>Find me a place to eat <i>now</i>!</h2>
+    <div class="row">
+      <div class="one-third column">
+        <p style='text-align: right;'>I don't want to wait</p>
+      </div>
+      <div class="one-third column">
+        <input style='width: 100%; margin-top: 0.3em' type="range" name=wait_time />
+      </div>
+      <div class="one-third column">
+        <p style='text-align: left;'>I want a popular restaurant</p>
+      </div>
+    </div>
 
-    <p>I don't want to wait <-> I want a popular restaurant:</p>
-    <input type="range" name=wait_time />
+    <div class="row">
+      <div class="one-third column">
+        <p style='text-align: right;'>Distance is no issue</p>
+      </div>
+      <div class="one-third column">
+        <input style='width: 100%; margin-top: 0.3em' type="range" name=distance />
+      </div>
+      <div class="one-third column">
+        <p style='text-align: left;'>I just want some place nearby</p>
+      </div>
+    </div>
 
-    <p>I'm willing to go far in search of noms <-> I want something nearby:</p>
-    <input type="range" name=distance />
+    <div class="row">
+      <div class="one-third column">
+        <p style='text-align: right;'>I want something from my favourites</p>
+      </div>
+      <div class="one-third column">
+        <input style='width: 100%; margin-top: 0.3em' type="range" name=novelty />
+      </div>
+      <div class="one-third column">
+        <p style='text-align: left;'>I want to try something new</p>
+      </div>
+    </div>
 
-    <p>I want to keep to the restaurants in my favourites <-> I want to try something new:</p>
-    <input type="range" name=novelty />
-
-    <p><input type="submit" value="nom-inate!"></p>
+    <center><input class="button-primary" type="submit" value="nom-inate!"></center>
 
     </form>
 
     <form method="POST" action="/nominate_later">
 
     <h2>When should I visit?</h2>
-    Select the restaurant you want to visit:
-    <select name='select_restaurant'>
-      {% for n in restaurant %}
-      <option value="{{n['rid']}}">{{n['rname']}}</option>
-      {% endfor %}
-    </select>
 
-    <p><button>nom-inate!</button></p>
+    <div class="row">
+
+      <div style='text-align: center; text-transform: uppercase; letter-spacing: 0.1em;'>
+        Select the restaurant you want to visit:
+      </div>
+      <center>
+        <select style="width:50%" name='select_restaurant'>
+          {% for n in restaurant %}
+          <option value="{{n['rid']}}">{{n['rname']}}</option>
+          {% endfor %}
+        </select>
+      </center>
+    
+    </div>
+
+    <center><button class="button-primary">nom-inate!</button></center>
 
     </form>
 
-    <div>
-       <tr><td> uid: {{ users['uid'] }}</td><br>
-      <td>Name: {{ users['name']}}</td><br>
-      <td>location id: {{ users['lid']}}</td><br>
-      <td>list id: {{ listid}}</td>
-    </tr> 
-      
+    <h2>Profile</h2>
+    <div class='row'>
+      <div style='text-align: left;' class="one-half column">
+        <h5>User ID</h5><h6>{{ users['uid'] }}</h6>
+      </div>
+      <div style='text-align: left;' class="one-half column">
+        <h5>Name</h5><h6>{{ users['name']}}</h6>
+      </div>
     </div>
-    <div> <br>Favourites Restaurants: </div>
+
+    <h5>Favourite Restaurants: </h5>
     <div>
-      <table border="1" style="width:50%">
-      <tr>
-      <td>action</td>  
-      <td>rid</td>
-      <td>Name</td> 
-      <td>rate</td>
-      <td>zip</td>
-      <td>city</td>
-      <td>state</td>
-      <td>st_addr</td>
-      </tr>  
-      {% for n in favs %}
-      <tr>
-      <td><p><a href="/del_fav?rid={{n['rid']}}">delete</a></p></td>   
-      <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
-      <td>{{n['rname']}}</td> 
-      <td>{{n['rate']}}</td>
-      <td>{{n['zip']}}</td>
-      <td>{{n['city']}}</td>
-      <td>{{n['state']}}</td>
-      <td>{{n['st_addr']}}</td>
-      </tr>
-      {% endfor %}
+      <table class="u-full-width">
+        <thead>
+          <tr>
+          <th>Remove</th>  
+          <th>Restaurant</th> 
+          <th>Rating</th>
+          <th>Street Address</th>
+          <th>Cross Streets</th>
+          </tr>  
+        </thead>
+        <tbody>
+          {% for n in favs %}
+          <tr>
+          <td><a href="/del_fav?rid={{n['rid']}}">&#10005;</a></td>   
+          <td><a href="/restaurant?rid={{n['rid']}}">{{n['rname']}}</a></td>
+          <td>{{n['rate']}}</td>
+          <td>{{n['st_addr']}}</td>
+          <td>{{n['cross_st']}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
     </table>
     </div>
 
-    <p><a href="/restaurant">show all restaurant</a></p>
+    <div style="text-align: right;"><a href="/restaurant">Show all restaurants ></a></div>
+    
     <p><a href="/signout">sign out</a></p>
 
-    coordinate from server
-    <div id = 'coordinate'>
+    <h5>Your Location</h5>
+    <h6>
+    <div id='coordinate'>
 
     </div>
+    </h6>
+   </div>
 
-    <article>
+  <article>
 
-    </article>
-    <script>
-    function success(position) {
-      var mapcanvas = document.createElement('div');
-      mapcanvas.id = 'mapcontainer';
-      mapcanvas.style.height = '400px';
-      mapcanvas.style.width = '600px';
+  </article>
+  <script>
+  function success(position) {
+    var mapcanvas = document.createElement('div');
+    mapcanvas.id = 'mapcontainer';
+    mapcanvas.style.height = '70vh';
+    mapcanvas.style.width = '100vw';
 
-      document.querySelector('article').appendChild(mapcanvas);
+    document.querySelector('article').appendChild(mapcanvas);
 
-      var coords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-      
-      var options = {
-        zoom: 15,
-        center: coords,
-        mapTypeControl: false,
-        navigationControlOptions: {
-          style: google.maps.NavigationControlStyle.SMALL
-        },
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-      var map = new google.maps.Map(document.getElementById("mapcontainer"), options);
+    var coords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    
+    var options = {
+      zoom: 15,
+      center: coords,
+      mapTypeControl: false,
+      navigationControlOptions: {
+        style: google.maps.NavigationControlStyle.SMALL
+      },
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("mapcontainer"), options);
 
-      var marker = new google.maps.Marker({
-          position: coords,
-          map: map,
-          title:"You are here!"
-      });
+    var marker = new google.maps.Marker({
+        position: coords,
+        map: map,
+        title:"You are here!"
+    });
 
-      var coor = ({
-        lat: position.coords.latitude,  
-        lon: position.coords.longitude
-      });
-      
+    var coor = ({
+      lat: position.coords.latitude,  
+      lon: position.coords.longitude
+    });
+    
 
-      $.post('/update_coordinate', coor, function (data, status) { 
-                    $('#coordinate').html(JSON.stringify(data, null, 2));
-                })
-    }
+    $.post('/update_coordinate', coor, function (data, status)
+    { 
+        $('#coordinate').html( '(' + data['lat'] + ',' + data['lon'] + ')' );
+    });
+  }
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(success);
-    } else {
-      error('Geo Location is not supported');
-    }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success);
+  } else {
+    error('Geo Location is not supported');
+  }
 
-    </script>
+  </script>
 
-  </div>
+ 
 
 </body>
 
