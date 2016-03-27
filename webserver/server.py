@@ -225,14 +225,16 @@ def signup():
 @app.route('/restaurant')
 def restaurant():
   rid = request.args.get('rid')
+  display_directions = 0
   if rid != None:
     cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % rid)
+    display_directions = 1
     #restaurant = cursor.fetchone()
   else:  
     cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.aid = a.aid;")
   restaurant = cursor.fetchall()
   cursor.close()  
-  return render_template("restaurant.html", restaurant = restaurant)  
+  return render_template("restaurant.html", restaurant = restaurant, display_directions=display_directions)  
 
 
 @app.route('/add_new_user', methods=['POST'])
@@ -343,22 +345,27 @@ def calculate_wait_time_score(day, weather, meal, weight):
     scores = initialise_score_dict()
 
     cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week='%d' AND weather='%s' AND time='%s';" % (day, weather, meal))
-    cid = cursor.fetchone()['cid']
-    # cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
-    cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
-    
+
     if cursor.fetchone() != None:
 
-      matching_data = cursor.fetchall()
-      rids = [visit_data['rid'] for visit_data in matching_data]
+      cid = cursor.fetchone()['cid']
+      cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
+      # cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
       
-      visits = [float(visit_data['count']) for visit_data in matching_data]
-      min_visit = min(visits)
-      max_visit = max(visits)
-      norm_vists = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
-      
-      for i in xrange(len(rids)):
-        scores[rids[i]] = ( weight - 50.0 ) / 50.0 * norm_vists[i]
+      if cursor.fetchone() != None:
+
+        matching_data = cursor.fetchall()
+        rids = [visit_data['rid'] for visit_data in matching_data]
+
+        print 'fdjskalfndksa'
+        
+        visits = [float(visit_data['count']) for visit_data in matching_data]
+        min_visit = min(visits)
+        max_visit = max(visits)
+        norm_vists = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
+        
+        for i in xrange(len(rids)):
+          scores[rids[i]] = ( weight - 50.0 ) / 50.0 * norm_vists[i]
     
     return scores
 
@@ -414,7 +421,6 @@ def nominate_now():
     current_meal = get_current_meal()
     current_day = datetime.today().weekday() + 1
 
-
     wait_time_score = calculate_wait_time_score(current_day, current_weather, current_meal, wait_time_weight)
     distance_score = calculate_distance_score(current_location, distance_weight)
     novelty_score = calculate_novelty_score(novelty_weight)
@@ -426,8 +432,10 @@ def nominate_now():
 
     # determine rankings
     rankings = sorted(overall_score.items(), key=operator.itemgetter(1))
+    rid_list = [ ranking[0] for ranking in rankings ]
+    ranked_restaurants = [ g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % (rid) ).fetchone() for rid in rid_list ]
 
-    return render_template("nominate-now.html", rankings=rankings)
+    return render_template("nominate-now.html", ranked_restaurants=ranked_restaurants)
 
 @app.route('/nominate_later', methods=['POST'])
 def nominate_later():
@@ -438,6 +446,9 @@ def nominate_later():
     cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid ='%s' AND C.cid=V.cid ORDER BY V.count ASC;" % (selected_rid) )
     if cursor.fetchone() != None:
       rankings = cursor.fetchall()
+
+    weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+    rankings = [ (weekdays[ranking['day_of_week'] - 1], ranking['time']) for ranking in rankings ]
 
     return render_template("nominate-later.html", rankings=rankings)
 

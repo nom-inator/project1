@@ -5,12 +5,37 @@
       font-family: arial;
     }
   </style>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
 
 <body>
   <h1>nom-inate now</h1>
 
-  {{rankings}}
+  <table border="1" style="width:100%">
+    <tr>
+      <td>action</td> 
+      <td>rid</td>
+      <td>Name</td> 
+      <td>rate</td>
+      <td>zip</td>
+      <td>city</td>
+      <td>state</td>
+      <td>st_addr</td>
+    </tr>
+    {% for n in ranked_restaurants %}
+      <tr>
+      <td><p><a href="/add_fav?rid={{n['rid']}}">add to favourites</a></p></td>  
+      <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
+      <td>{{n['rname']}}</td> 
+      <td>{{n['rate']}}</td>
+      <td>{{n['zip']}}</td>
+      <td>{{n['city']}}</td>
+      <td>{{n['state']}}</td>
+      <td>{{n['st_addr']}}</td>
+      </tr>
+    {% endfor %}
+  </table>   
 
 </body>
 
