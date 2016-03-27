@@ -300,121 +300,124 @@ def login():
     else:   
       return redirect("/")
 
+# get location
+def get_current_location():
+    cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = '%s';" % session['username'])
+    return cursor.fetchone()
+
+# get weather
+def get_current_weather(location):
+    forecast = forecastio.load_forecast(weather_api_key, location['lat'], location['lng'])
+    current_conditions = forecast.currently().icon
+    snow_likes = ['snow','sleet','hail']
+
+    # default weather is clear
+    if current_conditions=='rain':
+      return 'rainy'
+    elif any(current_conditions==snow_like for snow_like in snow_likes):
+      return 'snowy'
+    elif 'cloudy' in current_conditions or current_conditions=='fog':
+      return 'cloudy'
+    
+    return 'clear'
+
+# get meal
+def get_current_meal():
+    current_hour = datetime.now().hour
+    if current_hour >= 12 and current_hour <= 17:
+      return 'lunch'
+    elif current_hour < 12 or current_hour < 3:
+      return 'breakfast'
+    else:
+      return 'dinner'
+
+def initialise_score_dict(default_score=0.0):
+
+    cursor = g.conn.execute("SELECT DISTINCT rid FROM restaurant;")
+    all_rids = [result['rid'] for result in cursor.fetchall()]
+    return dict(zip(all_rids,[default_score]*len(all_rids)))
+
+# calculate wait_time_score
+def calculate_wait_time_score(day, weather, meal, weight):
+
+    scores = initialise_score_dict()
+
+    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week='%d' AND weather='%s' AND time='%s';" % (day, weather, meal))
+    cid = cursor.fetchone()['cid']
+    # cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
+    cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
+    
+    if cursor.fetchone() != None:
+
+      matching_data = cursor.fetchall()
+      rids = [visit_data['rid'] for visit_data in matching_data]
+      
+      visits = [float(visit_data['count']) for visit_data in matching_data]
+      min_visit = min(visits)
+      max_visit = max(visits)
+      norm_vists = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
+      
+      for i in xrange(len(rids)):
+        scores[rids[i]] = ( weight - 50.0 ) / 50.0 * norm_vists[i]
+    
+    return scores
+
+# calculate distance_score
+def calculate_distance_score(location, weight):
+
+    scores = initialise_score_dict()
+
+    cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
+    if cursor.fetchone() != None:
+
+      restaurants = cursor.fetchall()
+      rids = [ rest['rid'] for rest in restaurants ]
+
+      distances = [ ((location['lat'] - rlocation['lat'])**2 + (location['lng'] - rlocation['lng'])**2) for rlocation in restaurants ]
+      min_distance = min(distances)
+      max_distance = max(distances)
+      norm_distances = [ ( dist - min_distance ) / ( max_distance - min_distance ) for dist in distances ]
+
+      for i in xrange(len(rids)):
+        scores[rids[i]] = ( weight / 100.0 ) * float(norm_distances[i])
+
+      return scores
+
+
+# calculate novelty_score
+def calculate_novelty_score(weight):
+
+    scores = initialise_score_dict(-1.0 * (weight-50.0) / 50.0)
+
+    cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid ='%s';" % (session['username']) )
+
+    listid = cursor.fetchone()['listid']
+
+    cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
+
+    if cursor.fetchone() != None:
+      fav_rids = [row['rid'] for row in cursor.fetchall()]
+      for i in xrange(len(fav_rids)):
+          scores[fav_rids[i]] = scores[fav_rids[i]] * -1.0
+
+    return scores
+
 @app.route('/nominate_now', methods=['POST'])
 def nominate_now():
     
-    wait_time_weight = request.form['wait_time']
-    distance_weight = request.form['distance']
-    novelty_weight = request.form['novelty']
-
-    # get location
-    def get_current_location():
-      cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = '%s';" % session['username'])
-      return cursor.fetchone()
-
-    # get weather
-    def get_current_weather():
-      forecast = forecastio.load_forecast(weather_api_key, current_location['lat'], current_location['lng'])
-      current_conditions = forecast.currently().icon
-      snow_likes = ['snow','sleet','hail']
-      # default weather is clear
-      if current_conditions=='rain':
-        return 'rainy'
-      elif any(current_conditions==snow_like for snow_like in snow_likes):
-        return 'snowy'
-      elif 'cloudy' in current_conditions or current_conditions=='fog':
-        return 'cloudy'
-      return 'clear'
-
-    # get meal
-    def get_current_meal():
-      current_hour = datetime.now().hour
-      if current_hour >= 12 and current_hour <= 17:
-        return 'lunch'
-      elif current_hour < 12 or current_hour < 3:
-        return 'breakfast'
-      else:
-        return 'dinner'
-
-    def initialise_score_dict(default_score=0.0):
-
-      cursor = g.conn.execute("SELECT DISTINCT rid FROM restaurant;")
-      all_rids = [result['rid'] for result in cursor.fetchall()]
-      return dict(zip(all_rids,[default_score]*len(all_rids)))
-
-    # calculate wait_time_score
-    def calculate_wait_time_score(day, weather, meal):
-
-      scores = initialise_score_dict()
-
-      cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week='%d' AND weather='%s' AND time='%s';" % (day, weather, meal))
-      cid = cursor.fetchone()['cid']
-      # cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
-      cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
-      
-      if cursor.fetchone() != None:
-
-        matching_data = cursor.fetchall()
-        rids = [visit_data['rid'] for visit_data in matching_data]
-        
-        visits = [float(visit_data['count']) for visit_data in matching_data]
-        min_visit = min(visits)
-        max_visit = max(visits)
-        norm_vists = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
-        
-        for i in xrange(len(rids)):
-          scores[rids[i]] = (float(wait_time_weight)-50.0) / 50.0 * norm_vists[i]
-      
-      return scores
-
-    # calculate distance_score
-    def calculate_distance_score(location):
-
-      scores = initialise_score_dict()
-
-      cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
-      if cursor.fetchone() != None:
-
-        restaurants = cursor.fetchall()
-        rids = [ rest['rid'] for rest in restaurants ]
-
-        distances = [ ((location['lat'] - rlocation['lat'])**2 + (location['lng'] - rlocation['lng'])**2) for rlocation in restaurants ]
-        min_distance = min(distances)
-        max_distance = max(distances)
-        norm_distances = [ ( dist - min_distance ) / ( max_distance - min_distance ) for dist in distances ]
-
-        for i in xrange(len(rids)):
-          scores[rids[i]] = ( float(distance_weight) / 100.0 ) * float(norm_distances[i])
-
-        return scores
-
-
-    # calculate novelty_score
-    def calculate_novelty_score():
-
-      scores = initialise_score_dict(-1.0 * (float(novelty_weight)-50.0) / 50.0)
-
-      cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid ='%s';" % (session['username']) )
-
-      listid = cursor.fetchone()['listid']
-
-      cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
-
-      if cursor.fetchone() != None:
-        fav_rids = [row['rid'] for row in cursor.fetchall()]
-        for i in xrange(len(fav_rids)):
-            scores[fav_rids[i]] = scores[fav_rids[i]] * -1.0
-
-      return scores
+    wait_time_weight = float(request.form['wait_time'])
+    distance_weight = float(request.form['distance'])
+    novelty_weight = float(request.form['novelty'])
 
     current_location = get_current_location()
-    current_weather = get_current_weather()
+    current_weather = get_current_weather(current_location)
     current_meal = get_current_meal()
     current_day = datetime.today().weekday() + 1
 
-    wait_time_score = calculate_wait_time_score(current_day, current_weather, current_meal)
-    distance_score = calculate_distance_score(current_location)
-    novelty_score = calculate_novelty_score()
+
+    wait_time_score = calculate_wait_time_score(current_day, current_weather, current_meal, wait_time_weight)
+    distance_score = calculate_distance_score(current_location, distance_weight)
+    novelty_score = calculate_novelty_score(novelty_weight)
 
     # calculate overall_score
     overall_score = initialise_score_dict()
@@ -424,7 +427,19 @@ def nominate_now():
     # determine rankings
     rankings = sorted(overall_score.items(), key=operator.itemgetter(1))
 
-    return render_template("nominate-now.html", wait_time=wait_time_weight, distance=distance_weight, novelty=novelty_weight, rankings=rankings)
+    return render_template("nominate-now.html", rankings=rankings)
+
+@app.route('/nominate_later', methods=['POST'])
+def nominate_later():
+
+    selected_rid = request.form['select_restaurant']
+    rankings = []
+
+    cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid ='%s' AND C.cid=V.cid ORDER BY V.count ASC;" % (selected_rid) )
+    if cursor.fetchone() != None:
+      rankings = cursor.fetchall()
+
+    return render_template("nominate-later.html", rankings=rankings)
 
 if __name__ == "__main__":
   import click

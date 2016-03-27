@@ -33,11 +33,10 @@
   <form method="POST" action="/nominate_later">
 
   <h2>When should I visit?</h2>
-
   Select the restaurant you want to visit:
-  <select>
+  <select name='select_restaurant'>
     {% for n in restaurant %}
-    <option value="haha">{{n['rname']}}</option>
+    <option value="{{n['rid']}}">{{n['rname']}}</option>
     {% endfor %}
   </select>
 
