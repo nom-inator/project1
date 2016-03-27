@@ -241,6 +241,10 @@ def add_new_user():
   password = request.form['password']
   name = request.form['name']
 
+  cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s';" % (username))
+  if cursor.fetchone() != None:
+    return "user already exists"
+
   cursor = g.conn.execute("SELECT COUNT(*) FROM Users;" )
   lid = "l"+str(cursor.fetchone()[0]+1)
   # because of foreign key constraint, insert with uid = NULL and update table after new user is added into "Users" table
