@@ -90,6 +90,9 @@ CREATE TABLE Condition( -- our prebuilt table, no modifications allowed
   PRIMARY KEY (cid)
 );
 \COPY Condition from 'Conditions.csv' WITH (FORMAT CSV);
+alter table condition drop constraint condition_weather_check;
+update condition set weather = replace(weather, 'sunny', 'clear');
+alter table condition add constraint condition_weather_check CHECK (weather IN ('clear', 'rainy', 'snowy', 'cloudy')) ;
 
 
 
