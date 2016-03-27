@@ -187,19 +187,19 @@ def index():
       restaurant = cursor.fetchall()
 
       username = session['username']
-      cursor = g.conn.execute("SELECT * FROM Users WHERE uid = '%s';" % (username))
+      cursor = g.conn.execute("SELECT * FROM Users WHERE uid = %s;", username)
       #cursor = g.conn.execute("SELECT * FROM Users ;" )      
       users = cursor.fetchone()
       if users == None:
         return render_template("login.html")
 
-      cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid = '%s';" % (username))
+      cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid = %s;", username)
       listid = cursor.fetchone()['listid']
 
-      cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
+      cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = %s;", listid)
       favs = []
       for result in cursor:
-        res = g.conn.execute("SELECT * FROM restaurant r, Address a WHERE r.rid = '%s' AND r.aid = a.aid;" % (result['rid']))
+        res = g.conn.execute("SELECT * FROM restaurant r, Address a WHERE r.rid = %s AND r.aid = a.aid;", result['rid'])
         favs.append(res.fetchone())
         #users.append(result['rid'])  
       cursor.close()  
@@ -226,7 +226,7 @@ def signup():
 def restaurant():
   rid = request.args.get('rid')
   if rid != None:
-    cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % rid)
+    cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = %s AND r.aid = a.aid;" , rid)
     #restaurant = cursor.fetchone()
   else:  
     cursor = g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.aid = a.aid;")
@@ -241,20 +241,20 @@ def add_new_user():
   password = request.form['password']
   name = request.form['name']
 
-  cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s';" % (username))
+  cursor = g.conn.execute("SELECT * FROM users WHERE uid = %s;", (username))
   if cursor.fetchone() != None:
     return "user already exists"
 
   cursor = g.conn.execute("SELECT COUNT(*) FROM Users;" )
   lid = "l"+str(cursor.fetchone()[0]+1)
   # because of foreign key constraint, insert with uid = NULL and update table after new user is added into "Users" table
-  g.conn.execute("""INSERT INTO user_location VALUES ('%s', NULL , '%s', '%s');""" % (lid, 0, 0)) 
-  g.conn.execute("""INSERT INTO Users VALUES ('%s', '%s', '%s', '%s');""" % (username, name, lid, password))
-  g.conn.execute("""UPDATE user_location SET uid = '%s' WHERE lid = '%s';""" % (username, lid)) 
+  g.conn.execute("""INSERT INTO user_location VALUES (%s, NULL , %s, %s);""" , (lid, 0, 0)) 
+  g.conn.execute("""INSERT INTO Users VALUES (%s, %s, %s, %s);""" , (username, name, lid, password))
+  g.conn.execute("""UPDATE user_location SET uid = %s WHERE lid = %s;""" , (username, lid)) 
 
   cursor = g.conn.execute("SELECT COUNT(*) FROM favouriteslist;" )
   listid = "list"+str(cursor.fetchone()[0]+1)
-  g.conn.execute("""INSERT INTO favouriteslist VALUES ('%s', '%s');""" % (listid, username))
+  g.conn.execute("""INSERT INTO favouriteslist VALUES (%s, %s);""" , (listid, username))
 
   cursor.close()
 
@@ -266,9 +266,9 @@ def add_fav():
   rid = request.args.get('rid')
   username = session['username']
   if rid != None and username != None:
-    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = '%s';""" % username)  
+    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = %s;""" , username)  
     listid = cursor.fetchone()['listid']
-    g.conn.execute("""INSERT INTO restaurantoflist VALUES ('%s', '%s');""" % (rid, listid))
+    g.conn.execute("""INSERT INTO restaurantoflist VALUES (%s, %s);""" , (rid, listid))
     cursor.close()
   return redirect('/')   
 
@@ -277,16 +277,16 @@ def del_fav():
   rid = request.args.get('rid')
   username = session['username']
   if rid != None and username != None:
-    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = '%s';""" % username)  
+    cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = %s;""" , username)  
     listid = cursor.fetchone()['listid']
-    g.conn.execute("""DELETE FROM restaurantoflist WHERE rid ='%s' AND listid = '%s';""" % (rid, listid))
+    g.conn.execute("""DELETE FROM restaurantoflist WHERE rid =%s AND listid = %s;""" , (rid, listid))
   return redirect('/')   
 
 @app.route('/update_coordinate', methods=['POST'])
 def update_coordinate():
   jlat = request.form['lat']
   jlon = request.form['lon']
-  g.conn.execute("""UPDATE user_location SET lat = '%s', lng = '%s'  WHERE uid = '%s';""" % (jlat, jlon,session['username']))
+  g.conn.execute("""UPDATE user_location SET lat = %s, lng = %s  WHERE uid = %s;""" , (jlat, jlon,session['username']))
   return jsonify(lat = jlat, lon = jlon)
   
 
@@ -295,7 +295,7 @@ def login():
     if request.method == 'POST':
       username = request.form['username']
       password = request.form['password']
-      cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s' AND passwd = '%s';" % (username, password))
+      cursor = g.conn.execute("SELECT * FROM users WHERE uid = %s AND passwd = %s;" , (username, password))
       if cursor.fetchone() != None:
         session['username'] = username
         return redirect("/")
@@ -306,7 +306,7 @@ def login():
 
 # get location
 def get_current_location():
-    cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = '%s';" % session['username'])
+    cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = %s;", session['username'])
     return cursor.fetchone()
 
 # get weather
@@ -346,7 +346,7 @@ def calculate_wait_time_score(day, weather, meal, weight):
 
     scores = initialise_score_dict()
 
-    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week='%d' AND weather='%s' AND time='%s';" % (day, weather, meal))
+    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%d AND weather=%s AND time=%s;" , (day, weather, meal))
     cid = cursor.fetchone()['cid']
     # cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
     cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
@@ -393,11 +393,11 @@ def calculate_novelty_score(weight):
 
     scores = initialise_score_dict(-1.0 * (weight-50.0) / 50.0)
 
-    cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid ='%s';" % (session['username']) )
+    cursor = g.conn.execute("SELECT listid FROM favouriteslist WHERE uid =%s;" , (session['username']) )
 
     listid = cursor.fetchone()['listid']
 
-    cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = '%s';" % (listid))
+    cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = %s;" , (listid))
 
     if cursor.fetchone() != None:
       fav_rids = [row['rid'] for row in cursor.fetchall()]
@@ -439,7 +439,7 @@ def nominate_later():
     selected_rid = request.form['select_restaurant']
     rankings = []
 
-    cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid ='%s' AND C.cid=V.cid ORDER BY V.count ASC;" % (selected_rid) )
+    cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
     if cursor.fetchone() != None:
       rankings = cursor.fetchall()
 
