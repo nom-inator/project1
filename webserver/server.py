@@ -247,7 +247,7 @@ def add_new_user():
   lid = "l"+str(cursor.fetchone()[0]+1)
   # because of foreign key constraint, insert with uid = NULL and update table after new user is added into "Users" table
   g.conn.execute("""INSERT INTO user_location VALUES ('%s', NULL , '%s', '%s');""" % (lid, 0, 0)) 
-  g.conn.execute("""INSERT INTO Users VALUES ('%s', '%s', '%s');""" % (username, name, lid))
+  g.conn.execute("""INSERT INTO Users VALUES ('%s', '%s', '%s', '%s');""" % (username, name, lid, password))
   g.conn.execute("""UPDATE user_location SET uid = '%s' WHERE lid = '%s';""" % (username, lid)) 
 
   cursor = g.conn.execute("SELECT COUNT(*) FROM favouriteslist;" )
@@ -293,7 +293,7 @@ def login():
     if request.method == 'POST':
       username = request.form['username']
       password = request.form['password']
-      cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s';" % (username))
+      cursor = g.conn.execute("SELECT * FROM users WHERE uid = '%s' AND passwd = '%s';" % (username, password))
       if cursor.fetchone() != None:
         session['username'] = username
         return redirect("/")
