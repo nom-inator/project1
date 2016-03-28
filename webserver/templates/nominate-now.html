@@ -1,41 +1,72 @@
 <html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<head>
+
+ <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/normalize.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/skeleton.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
+
+
+  <link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
+
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+</head>
 
 
 <body>
-  <h1>nom-inate now</h1>
 
-  <table border="1" style="width:100%">
-    <tr>
-      <td>action</td> 
-      <td>rid</td>
-      <td>Name</td> 
-      <td>rate</td>
-      <td>zip</td>
-      <td>city</td>
-      <td>state</td>
-      <td>st_addr</td>
-    </tr>
-    {% for n in ranked_restaurants %}
+
+  <div class="container">
+
+    <div class='row'>
+        <img style='margin-top:20vh; margin-left: auto; margin-right: auto; display: block; height:25vh;' src='{{ url_for('static',filename='assets/noun_188703_cc.png') }}' />
+        <h1 style='margin-bottom:10vh; text-align: center;'>nom-inate now</h1>
+    </div>
+
+    <p>The Flying Spaghetti Monster told us you'd want to eat at these restaurants.</p>
+
+    <table class="u-full-width">
+      <thead>
       <tr>
-      <td><p><a href="/add_fav?rid={{n['rid']}}">add to favourites</a></p></td>  
-      <td><p><a href="/restaurant?rid={{n['rid']}}">{{n['rid']}}</a></p></td>
-      <td>{{n['rname']}}</td> 
-      <td>{{n['rate']}}</td>
-      <td>{{n['zip']}}</td>
-      <td>{{n['city']}}</td>
-      <td>{{n['state']}}</td>
-      <td>{{n['st_addr']}}</td>
+        <th>Add to Favorites</th> 
+        <th>Restaurant</th> 
+        <th>Rating</th>
+        <th>ZIP</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Street Address</th>
+        <th>Cross Streets</th>
+        <th>Get Directions</th>
       </tr>
-    {% endfor %}
-  </table>   
+      </thead>
+      {% for n in ranked_restaurants %}
+        <tr>
+        <td><a href="/add_fav?rid={{n['rid']}}">+</a></td>  
+        <td><a href="/restaurant?rid={{n['rid']}}">{{n['rname']}}</a></td>
+        <td>{{n['rate']}}</td>
+        <td>{{n['zip']}}</td>
+        <td>{{n['city']}}</td>
+        <td>{{n['state']}}</td>
+        <td>{{n['st_addr']}}</td>
+        <td>{{n['cross_st']}}</td>
+        <td><a href="/restaurant?rid={{n['rid']}}">Go</a></td>
+        </tr>
+      {% endfor %}
+    </table>
+
+  </div> 
 
 </body>
 

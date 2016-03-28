@@ -348,7 +348,7 @@ def calculate_wait_time_score(day, weather, meal, weight):
 
     scores = initialise_score_dict()
 
-    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%d AND weather=%s AND time=%s;" , (day, weather, meal))
+    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%d AND weather='%s' AND time='%s';" % (day, weather, meal))
 
     if cursor.fetchone() != None:
 
@@ -360,8 +360,6 @@ def calculate_wait_time_score(day, weather, meal, weight):
 
         matching_data = cursor.fetchall()
         rids = [visit_data['rid'] for visit_data in matching_data]
-
-        print 'fdjskalfndksa'
         
         visits = [float(visit_data['count']) for visit_data in matching_data]
         min_visit = min(visits)
@@ -447,6 +445,9 @@ def nominate_later():
     selected_rid = request.form['select_restaurant']
     rankings = []
 
+    cursor = g.conn.execute("SELECT rname FROM restaurant WHERE rid=%s;" , (selected_rid) )
+    restaurant_name = cursor.fetchone()
+
     cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
     if cursor.fetchone() != None:
       rankings = cursor.fetchall()
@@ -454,7 +455,7 @@ def nominate_later():
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     rankings = [ (weekdays[ranking['day_of_week'] - 1], ranking['time']) for ranking in rankings ]
 
-    return render_template("nominate-later.html", rankings=rankings)
+    return render_template("nominate-later.html", rankings=rankings, restaurant_name=restaurant_name)
 
 if __name__ == "__main__":
   import click

@@ -1,16 +1,52 @@
 <html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
 
+<head>
+
+ <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/normalize.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/skeleton.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
+
+
+  <link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
+  
+</head>
 
 <body>
-  <h1>Sign up</h1>
 
-<form method="POST" action="/add_new_user">
+    <div class="container">
+
+    <div class='row'>
+        <img style='margin-top:20vh; margin-left: auto; margin-right: auto; display: block; height:25vh;' src='{{ url_for('static',filename='assets/noun_188701_cc.png') }}' />
+        <h1 style='margin-bottom:10vh; text-align: center;'>Sign Up</h1>
+    </div>
+
+    <div class="row">
+      <div class='four columns'><p style="width: 100%"></div>
+      <div class='four columns'>
+        <form method="POST" action="/add_new_user">
+            <input style="width: 100%" type=text name=username placeholder="Username"><br>
+            <input style="width: 100%" type=password name=password placeholder="Password"><br>
+            <input style="width: 100%" type=password name=name placeholder="Your Name"><br>
+            <input style="width: 100%; margin-bottom: 0;" type=submit value='Sign Up'>
+        </form>
+        <p style="text-align: center;"><a href="/login">or Login</a></p>
+      </div>
+      <div class='four columns'><p style="width: 100%"></div>
+    </div>
+    
+  </div>
+
+<!-- <form method="POST" action="/add_new_user">
   <dl>
       <dt>Username:
       <dd><input type=text name=username>
@@ -21,7 +57,7 @@
       <dd><input type=submit value='sign up'>
   </dl>
 </form>
-
+ -->
 </body>
 
 
