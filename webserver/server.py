@@ -348,11 +348,11 @@ def calculate_wait_time_score(day, weather, meal, weight):
 
     scores = initialise_score_dict()
 
-    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%d AND weather=%s AND time=%s;" , (day, weather, meal))
+    cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%s AND weather=%s AND time=%s;" , (day, weather, meal))
+    cond = cursor.fetchone()
+    if cond != None:
 
-    if cursor.fetchone() != None:
-
-      cid = cursor.fetchone()['cid']
+      cid = cond['cid']
       cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
       # cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
       
