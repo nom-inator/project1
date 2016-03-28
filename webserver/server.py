@@ -312,7 +312,9 @@ def login():
 # get location
 def get_current_location():
     cursor = g.conn.execute("SELECT * FROM user_location WHERE uid = %s;", session['username'])
-    return cursor.fetchone()
+    loc = cursor.fetchone()
+    cursor.close()
+    return loc
 
 # get weather
 def get_current_weather(location):
@@ -344,6 +346,7 @@ def initialise_score_dict(default_score=0.0):
 
     cursor = g.conn.execute("SELECT DISTINCT rid FROM restaurant;")
     all_rids = [result['rid'] for result in cursor.fetchall()]
+    cursor.close()
     return dict(zip(all_rids,[default_score]*len(all_rids)))
 
 # calculate wait_time_score
@@ -352,7 +355,9 @@ def calculate_wait_time_score(day, weather, meal, weight):
     scores = initialise_score_dict()
 
     cursor = g.conn.execute("SELECT cid FROM condition WHERE day_of_week=%s AND weather=%s AND time=%s;" , (day, weather, meal))
+
     cond = cursor.fetchone()
+    
     if cond != None:
 
       cid = cond['cid']
@@ -365,11 +370,15 @@ def calculate_wait_time_score(day, weather, meal, weight):
         visits = [float(visit_data['count']) for visit_data in matching_data]
         min_visit = min(visits)
         max_visit = max(visits)
-        norm_vists = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
+        if min_visit!=max_visit:
+          norm_visits = [ ( visit - min_visit ) / ( max_visit - min_visit ) for visit in visits ]
+        elif min_visit!=0:
+          norm_visits = [ visit / min_visit for visit in visits ]
         
         for i in xrange(len(rids)):
-          scores[rids[i]] = ( weight - 50.0 ) / 50.0 * norm_vists[i]
+          scores[rids[i]] = ( weight - 50.0 ) / 50.0 * norm_visits[i]
     
+    cursor.close()
     return scores
 
 # calculate distance_score
@@ -380,18 +389,23 @@ def calculate_distance_score(location, weight):
     cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
 
     restaurants = cursor.fetchall()
+
     if restaurants:
       rids = [ rest['rid'] for rest in restaurants ]
 
       distances = [ ((location['lat'] - rlocation['lat'])**2 + (location['lng'] - rlocation['lng'])**2) for rlocation in restaurants ]
       min_distance = min(distances)
       max_distance = max(distances)
-      norm_distances = [ ( dist - min_distance ) / ( max_distance - min_distance ) for dist in distances ]
+      if min_distance!=max_distance:
+        norm_distances = [ ( dist - min_distance ) / ( max_distance - min_distance ) for dist in distances ]
+      elif min_distance!=0:
+        norm_distances = [ dist / min_distance for dist in distances ]
 
       for i in xrange(len(rids)):
         scores[rids[i]] = ( weight / 100.0 ) * float(norm_distances[i])
 
-      return scores
+    cursor.close()
+    return scores
 
 
 # calculate novelty_score
@@ -411,6 +425,7 @@ def calculate_novelty_score(weight):
       for i in xrange(len(fav_rids)):
           scores[fav_rids[i]] = scores[fav_rids[i]] * -1.0
 
+    cursor.close()
     return scores
 
 @app.route('/nominate_now', methods=['POST'])
@@ -436,10 +451,9 @@ def nominate_now():
 
     # determine rankings
     rankings = sorted(overall_score.items(), key=operator.itemgetter(1))
-    rid_list = [ ranking[0] for ranking in rankings ]
+    rid_list = [ ranking[0] for ranking in rankings[:3] ]
     ranked_restaurants = [ g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % (rid) ).fetchone() for rid in rid_list ]
 
-    cursor.close()
     return render_template("nominate-now.html", ranked_restaurants=ranked_restaurants)
 
 @app.route('/nominate_later', methods=['POST'])
@@ -451,10 +465,8 @@ def nominate_later():
     cursor = g.conn.execute("SELECT rname FROM restaurant WHERE rid=%s;" , (selected_rid) )
     restaurant_name = cursor.fetchone()
 
-    cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
+    cursor = g.conn.execute("SELECT C.day_of_week, C.time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid GROUP BY (C.day_of_week, C.time) ORDER BY AVG(V.count) ASC LIMIT 3;" , (selected_rid) )
     rankings = cursor.fetchall()
-    #if cursor.fetchone() != None:
-    #  rankings = cursor.fetchall()
 
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     rankings = [ (weekdays[ranking['day_of_week'] - 1], ranking['time']) for ranking in rankings ]

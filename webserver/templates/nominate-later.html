@@ -19,13 +19,29 @@
 
   <link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
 
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-
 </head>
 
 
 <body>
+
+    <div class='fixed' id='navigation'>
+      <a style='position: absolute; left: 0px; margin-left: 1em; margin-top: auto; margin-bottom: auto;' href="/">
+        <img style='height:3.5em;' src='{{ url_for('static',filename='assets/noun_163373_cc.png') }}' />
+      </a>
+      <div class='container'>
+        <div class='row'>
+          <div class='nine columns'>
+            <a class='left' href="/#nao">Feed me nao</a>
+            <a class='left' href="/#later">When should I visit?</a>
+            <a class='left' href="/restaurant">All Restaurants</a>
+          </div>
+          <div class="three columns">
+            <a class='right' href="/signout">Sign Out</a>
+            <a class='right' href="/#profile">Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <div class="container">
 
