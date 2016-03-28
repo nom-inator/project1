@@ -282,6 +282,7 @@ def del_fav():
     cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = %s;""" , username)  
     listid = cursor.fetchone()['listid']
     g.conn.execute("""DELETE FROM restaurantoflist WHERE rid =%s AND listid = %s;""" , (rid, listid))
+    cursor.close()
   return redirect('/')   
 
 @app.route('/update_coordinate', methods=['POST'])
@@ -289,6 +290,7 @@ def update_coordinate():
   jlat = request.form['lat']
   jlon = request.form['lon']
   g.conn.execute("""UPDATE user_location SET lat = %s, lng = %s  WHERE uid = %s;""" , (jlat, jlon,session['username']))
+  cursor.close()
   return jsonify(lat = jlat, lon = jlon)
   
 
@@ -300,8 +302,9 @@ def login():
       cursor = g.conn.execute("SELECT * FROM users WHERE uid = %s AND passwd = %s;" , (username, password))
       if cursor.fetchone() != None:
         session['username'] = username
+        cursor.close()
         return redirect("/")
-  
+      cursor.close()
       return render_template("login.html")
     else:   
       return redirect("/")
@@ -358,6 +361,7 @@ def calculate_wait_time_score(day, weather, meal, weight):
       
       if cursor.fetchone() != None:
 
+        cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
         matching_data = cursor.fetchall()
         rids = [visit_data['rid'] for visit_data in matching_data]
         
@@ -377,8 +381,10 @@ def calculate_distance_score(location, weight):
     scores = initialise_score_dict()
 
     cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
+
     if cursor.fetchone() != None:
 
+      cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
       restaurants = cursor.fetchall()
       rids = [ rest['rid'] for rest in restaurants ]
 
@@ -405,6 +411,7 @@ def calculate_novelty_score(weight):
     cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = %s;" , (listid))
 
     if cursor.fetchone() != None:
+      cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = %s;" , (listid))
       fav_rids = [row['rid'] for row in cursor.fetchall()]
       for i in xrange(len(fav_rids)):
           scores[fav_rids[i]] = scores[fav_rids[i]] * -1.0
@@ -437,6 +444,7 @@ def nominate_now():
     rid_list = [ ranking[0] for ranking in rankings ]
     ranked_restaurants = [ g.conn.execute("SELECT * FROM Restaurant r, Address a WHERE r.rid = '%s'AND r.aid = a.aid;" % (rid) ).fetchone() for rid in rid_list ]
 
+    cursor.close()
     return render_template("nominate-now.html", ranked_restaurants=ranked_restaurants)
 
 @app.route('/nominate_later', methods=['POST'])
@@ -450,11 +458,13 @@ def nominate_later():
 
     cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
     if cursor.fetchone() != None:
+      cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
       rankings = cursor.fetchall()
 
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     rankings = [ (weekdays[ranking['day_of_week'] - 1], ranking['time']) for ranking in rankings ]
 
+    cursor.close()
     return render_template("nominate-later.html", rankings=rankings, restaurant_name=restaurant_name)
 
 if __name__ == "__main__":

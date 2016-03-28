@@ -2,22 +2,24 @@
 
 <head>
 
- <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Mobile Specific Metas
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+<!-- FONT
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
 
-  <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/normalize.css') }}">
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/skeleton.css') }}">
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
+<!-- CSS
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/normalize.css') }}">
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/skeleton.css') }}">
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/custom.css') }}">
 
 
-  <link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static',filename='assets/noun_163373_cc.png') }}">
+
+<script src="{{ url_for('static',filename='styles/handleScroll.js') }}"></script>
 
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
@@ -26,6 +28,25 @@
 
 <body>
 
+  <div id='navigation'>
+  <a style='position: absolute; left: 0px; margin-left: 1em; margin-top: auto; margin-bottom: auto;' href="/">
+    <img style='height:3.5em;' src='{{ url_for('static',filename='assets/noun_163373_cc.png') }}' />
+  </a>
+    <div class='container'>
+      <div class='row'>
+        <div class='nine columns'>
+          <a class='left' href="#nao">Feed me nao</a>
+          <a class='left' href="#later">When should I visit?</a>
+          <a class='left' href="/restaurant">All Restaurants</a>
+        </div>
+        <div class="three columns">
+          <a class='right' href="/signout">Sign Out</a>
+          <a class='right' href="#profile">{{users['name']}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class='container'>
 
     <div class='row'>
@@ -33,18 +54,22 @@
       <h1 style='margin-bottom:10vh; text-align: center;'>the nom-inator</h1>
     </div>
 
-    <div style='margin-bottom:10vh' class='row'>
+    <div style='margin-bottom:20vh' class='row'>
       <div class="one-half column">
-        <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188703_cc.png') }}">
-        <center><button>Feed me nao</button></center>
+        <a href='#nao'>
+          <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188703_cc.png') }}">
+          <center><button>Feed me nao</button></center>
+        </a>
       </div>
       <div class="one-half column">
-        <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188690_cc.png') }}">
-        <center><button>When should I visit?</button><center></center>
+        <a href='#later'>
+          <img style='margin-left: auto; margin-right: auto; display: block; height:20vh;' src="{{ url_for('static',filename='assets/noun_188690_cc.png') }}">
+          <center><button>When should I visit?</button></center>
+        </a>
       </div>
     </div>
 
-    <h2>Feed me nao.</h2>
+    <h2 id='nao'>Feed me nao.</h2>
 
     <p style='text-align: center; text-transform: uppercase; letter-spacing: 0.1em;'>What are you feeling?</p>
 
@@ -92,7 +117,7 @@
 
     <form method="POST" action="/nominate_later">
 
-    <h2>When should I visit?</h2>
+    <h2 id='later'>When should I visit?</h2>
 
     <div class="row">
 
@@ -113,7 +138,7 @@
 
     </form>
 
-    <h2>Profile</h2>
+    <h2 id='profile'>Profile</h2>
     <div class='row'>
       <div style='text-align: left;' class="one-half column">
         <h5>User ID</h5><h6>{{ users['uid'] }}</h6>
