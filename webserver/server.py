@@ -465,7 +465,7 @@ def nominate_later():
     cursor = g.conn.execute("SELECT rname FROM restaurant WHERE rid=%s;" , (selected_rid) )
     restaurant_name = cursor.fetchone()
 
-    cursor = g.conn.execute("SELECT C.day_of_week, C.time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid GROUP BY (C.day_of_week, C.time) ORDER BY AVG(V.count) ASC LIMIT 3;" , (selected_rid) )
+    cursor = g.conn.execute("SELECT C.day_of_week, C.time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid GROUP BY C.day_of_week, C.time ORDER BY AVG(V.count) ASC LIMIT 3;" , (selected_rid) )
     rankings = cursor.fetchall()
 
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
