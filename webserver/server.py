@@ -43,8 +43,8 @@ weather_api_key = '97fcdbefb9c4d2b4fbb6c6f2121ea33e'
 #
 #     DATABASEURI = "postgresql://ewu2493:foobar@w4111db.eastus.cloudapp.azure.com/ewu2493"
 #
-DATABASEURI = "postgresql://localhost/nominator"
-#DATABASEURI = "postgresql://cw2952:EZANNW@w4111db.eastus.cloudapp.azure.com/cw2952"
+#DATABASEURI = "postgresql://localhost/nominator"
+DATABASEURI = "postgresql://cw2952:EZANNW@w4111db.eastus.cloudapp.azure.com/cw2952"
 
 #
 # This line creates a database engine that knows how to connect to the URI above
