@@ -355,10 +355,8 @@ def calculate_wait_time_score(day, weather, meal, weight):
       cid = cond['cid']
       cursor = g.conn.execute("SELECT * FROM visit WHERE cid='%s';" % cid)
       # cursor = g.conn.execute("SELECT * FROM visit LIMIT 10")
-      
-      if cursor.fetchone() != None:
-
-        matching_data = cursor.fetchall()
+      matching_data = cursor.fetchall()
+      if matching_data:
         rids = [visit_data['rid'] for visit_data in matching_data]
         
         visits = [float(visit_data['count']) for visit_data in matching_data]
@@ -377,9 +375,8 @@ def calculate_distance_score(location, weight):
     scores = initialise_score_dict()
 
     cursor = g.conn.execute("SELECT rid, lat, lng FROM address;")
-    if cursor.fetchone() != None:
-
-      restaurants = cursor.fetchall()
+    restaurants = cursor.fetchall()
+    if restaurants:
       rids = [ rest['rid'] for rest in restaurants ]
 
       distances = [ ((location['lat'] - rlocation['lat'])**2 + (location['lng'] - rlocation['lng'])**2) for rlocation in restaurants ]
@@ -404,8 +401,9 @@ def calculate_novelty_score(weight):
 
     cursor = g.conn.execute("SELECT rid FROM restaurantoflist WHERE listid = %s;" , (listid))
 
-    if cursor.fetchone() != None:
-      fav_rids = [row['rid'] for row in cursor.fetchall()]
+    favs = cursor.fetchall()
+    if favs != None:
+      fav_rids = [row['rid'] for row in favs]
       for i in xrange(len(fav_rids)):
           scores[fav_rids[i]] = scores[fav_rids[i]] * -1.0
 
@@ -449,8 +447,9 @@ def nominate_later():
     restaurant_name = cursor.fetchone()
 
     cursor = g.conn.execute("SELECT day_of_week, time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid ORDER BY V.count ASC;" , (selected_rid) )
-    if cursor.fetchone() != None:
-      rankings = cursor.fetchall()
+    rankings = cursor.fetchall()
+    #if cursor.fetchone() != None:
+    #  rankings = cursor.fetchall()
 
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     rankings = [ (weekdays[ranking['day_of_week'] - 1], ranking['time']) for ranking in rankings ]
