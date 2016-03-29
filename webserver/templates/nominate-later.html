@@ -50,11 +50,11 @@
         <h1 style='margin-bottom:10vh; text-align: center;'>nom-inate later</h1>
     </div>
 
-    <p style="text-align: center">The Flying Spaghetti Monster told us you'd want to eat at <b>{{restaurant_name['rname']}}</b> during one of these times.</p>
+    <p style="text-align: center">The Flying Spaghetti Monster told us that if you hate waiting for a table, you'd want to eat at <b>{{restaurant_name['rname']}}</b> during one of these times.</p>
 
     {% for r in rankings %}
     <h5 style='text-align: center;'>
-    On {{r[0]}} during {{r[1]}}.
+    On <span style='font-weight: 400;'>{{r[0]}}</span> during <span style='font-weight: 400;'>{{r[1]}}</span>.
     </h5>
     {% endfor %}
 
