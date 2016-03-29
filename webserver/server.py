@@ -270,7 +270,10 @@ def add_fav():
   if rid != None and username != None:
     cursor = g.conn.execute("""SELECT listid FROM favouriteslist WHERE uid = %s;""" , username)  
     listid = cursor.fetchone()['listid']
-    g.conn.execute("""INSERT INTO restaurantoflist VALUES (%s, %s);""" , (rid, listid))
+    cursor = g.conn.execute("""SELECT * FROM restaurantoflist WHERE rid = %s AND listid = %s;""" , (rid, listid))
+    res = cursor.fetchone()
+    if res == None:
+      g.conn.execute("""INSERT INTO restaurantoflist VALUES (%s, %s);""" , (rid, listid))
     cursor.close()
   return redirect('/')   
 
@@ -290,7 +293,6 @@ def update_coordinate():
   jlat = request.form['lat']
   jlon = request.form['lon']
   g.conn.execute("""UPDATE user_location SET lat = %s, lng = %s  WHERE uid = %s;""" , (jlat, jlon,session['username']))
-  cursor.close()
   return jsonify(lat = jlat, lon = jlon)
   
 
@@ -465,7 +467,7 @@ def nominate_later():
     cursor = g.conn.execute("SELECT rname FROM restaurant WHERE rid=%s;" , (selected_rid) )
     restaurant_name = cursor.fetchone()
 
-    cursor = g.conn.execute("SELECT C.day_of_week, C.time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid GROUP BY (C.day_of_week, C.time) ORDER BY AVG(V.count) ASC LIMIT 3;" , (selected_rid) )
+    cursor = g.conn.execute("SELECT C.day_of_week, C.time FROM visit AS V, condition AS C WHERE V.rid =%s AND C.cid=V.cid GROUP BY C.day_of_week, C.time ORDER BY AVG(V.count) ASC LIMIT 3;" , (selected_rid) )
     rankings = cursor.fetchall()
 
     weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
