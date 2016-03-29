@@ -161,6 +161,7 @@
           <th>State</th>
           <th>Street Address</th>
           <th>Cross Streets</th>
+          <th>Get Directions</th>
           </tr>  
         </thead>
         <tbody>
@@ -174,6 +175,7 @@
           <td>{{n['state']}}</td>
           <td>{{n['st_addr']}}</td>
           <td>{{n['cross_st']}}</td>
+          <td><a href="/restaurant?rid={{n['rid']}}">Go</a></td>
           </tr>
           {% endfor %}
         </tbody>
